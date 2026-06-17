@@ -29,3 +29,39 @@ export const register = catchAsyncErrors(async (req, res) => {
 
   sendToken(user, 201, res, "User Registered Successfully!");
 });
+
+// ---------------- LOGIN ----------------
+export const login = catchAsyncErrors(async (req, res) => {
+  const { email, password, role } = req.body;
+
+  if (!email || !password || !role) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide email, password and role!",
+    });
+  }
+
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    return res.status(400).json({
+     success: false,
+     message: "Invalid Email or Password." });
+  }
+
+  const isPasswordMatched = await user.comparePassword(password);
+  if (!isPasswordMatched) {
+    return res.status(400).json({
+     success: false, 
+    message: "Invalid Email or Password!" });
+  }
+
+  if (user.role !== role) {
+    return res.status(404).json({
+      success: false,
+      message: `User with provided email and role '${role}' not found!`,
+    });
+  }
+
+  sendToken(user, 200, res, "User Logged In Successfully!");
+});
+
