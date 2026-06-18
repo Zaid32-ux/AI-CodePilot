@@ -27,3 +27,15 @@ export const getReview = catchAsyncErrors(async (req, res) => {
     prompt,
   });
 });
+
+// ---------------- GET ALL PROMPTS ----------------
+export const getPastPrompts = catchAsyncErrors(async (req, res) => {
+  const prompts = await Prompt.find().sort({
+    createdAt: -1,
+  });
+
+  res.status(200).json({
+    success: true,
+    prompts,
+  });
+});
