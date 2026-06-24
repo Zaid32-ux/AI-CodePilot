@@ -9,7 +9,7 @@ function Login({ setToken }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", {
+      const response = await axios.post("http://localhost:4000/auth/login", {
         email,
         password,
       });

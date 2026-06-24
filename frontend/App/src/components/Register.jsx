@@ -10,13 +10,13 @@ function Register({ setToken }) {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/auth/register", {
+      const response = await axios.post("http://localhost:4000/auth/register", {
         name,
         email,
         password,
       });
       const tokenResponse = await axios.post(
-        "http://localhost:3000/auth/login",
+        "http://localhost:4000/auth/login",
         {
           email,
           password,
