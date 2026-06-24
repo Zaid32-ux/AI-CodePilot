@@ -91,6 +91,27 @@ function App() {
           </button>
         </aside>
 
+       
+          {/* Buttons */}
+          <div className="p-4 bg-gray-900 border-t border-gray-700 flex items-center">
+            {selectedReview ? (
+              <button
+                onClick={() => updateReview(selectedReview.id)}
+                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600"
+              >
+                Update Review
+              </button>
+            ) : (
+              <button
+                onClick={reviewCode}
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+              >
+                Submit for Review
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
     </>
   );
 }
