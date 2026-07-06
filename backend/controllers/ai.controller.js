@@ -1,7 +1,7 @@
 import axios from "axios";
-import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
-import { Prompt } from "../Model/promptSchema.js";
-import aiService from "../services/ai.service.js";
+import Prompt from "../Model/prompt.js";
+import aiService from "../services/ai.Service.js";
+import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 
 // ---------------- GENERATE REVIEW ----------------
 export const getReview = catchAsyncErrors(async (req, res) => {
@@ -17,22 +17,23 @@ export const getReview = catchAsyncErrors(async (req, res) => {
   const review = await aiService(code);
 
   const prompt = await Prompt.create({
-    code,
-    review,
-  });
+  user: req.user._id,
+  code,
+  review,
+});
 
   res.status(201).json({
     success: true,
-    message: "Review generated successfully!",
+    review,     // IMPORTANT (frontend expects this)
     prompt,
   });
 });
 
 // ---------------- GET ALL PROMPTS ----------------
 export const getPastPrompts = catchAsyncErrors(async (req, res) => {
-  const prompts = await Prompt.find().sort({
-    createdAt: -1,
-  });
+const prompts = await Prompt.find({
+  user: req.user._id,
+}).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
@@ -52,24 +53,21 @@ export const updateReview = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  const aiResponse = await axios.post(
-    "http://localhost:4000/ai/get-review",
-    { code }
-  );
+  const review = await aiService(code);
 
-  const newReview = aiResponse.data.review;
-
-  const updatedPrompt = await Prompt.findByIdAndUpdate(
-    id,
-    {
-      code,
-      review: newReview,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+Prompt.findOneAndUpdate(
+  {
+    _id: id,
+    user: req.user._id,
+  },
+  {
+    code,
+    review,
+  },
+  {
+    new: true,
+  }
+);
 
   if (!updatedPrompt) {
     return res.status(404).json({
@@ -80,7 +78,7 @@ export const updateReview = catchAsyncErrors(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Review updated successfully!",
+    review,
     prompt: updatedPrompt,
   });
 });
@@ -89,7 +87,10 @@ export const updateReview = catchAsyncErrors(async (req, res) => {
 export const deleteReview = catchAsyncErrors(async (req, res) => {
   const { id } = req.params;
 
-  const prompt = await Prompt.findById(id);
+  const prompt = await Prompt.findOne({
+  _id: id,
+  user: req.user._id,
+});
 
   if (!prompt) {
     return res.status(404).json({
