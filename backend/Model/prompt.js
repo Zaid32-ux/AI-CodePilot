@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const promptSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     code: {
       type: String,
       required: true,
@@ -16,6 +21,4 @@ const promptSchema = new mongoose.Schema(
   }
 );
 
-const Prompt = mongoose.model("Prompt", promptSchema);
-
-export default Prompt;
+export default mongoose.model("Prompt", promptSchema);
