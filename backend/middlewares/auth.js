@@ -1,36 +1,29 @@
 import { User } from "../Model/userSchema.js";
-import { catchAsyncErrors } from "./catchAsyncError.js";
+import { catchAsyncErrors } from "./catchAsyncErrors.js";
 import jwt from "jsonwebtoken";
 
 export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
-  const { token } = req.cookies;
+  const authHeader = req.headers.authorization;
 
-  // If no token found, send 401 Unauthorized
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      message: "User Not Authorized" 
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      success: false,
+      message: "User Not Authorized",
     });
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    req.user = await User.findById(decoded.id);
+  const token = authHeader.split(" ")[1];
 
-    if (!req.user) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "User Not Authorized" 
-      });
-    }
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-    // User is authenticated
-    next();
-  } catch (error) {
-    // Token invalid or expired
-    return res.status(401).json({ 
-      success: false, 
-      message: "Invalid Token" 
+  req.user = await User.findById(decoded.id);
+
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "User Not Authorized",
     });
-  }//auth = verify identity
+  }
+
+  next();
 });
