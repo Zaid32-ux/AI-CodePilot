@@ -1,6 +1,8 @@
 // routes/auth.routes.js
 import express from "express"
-import { login, register, logout, getUser } from"../controllers/ai.controller";
+import { login, register, logout, getUser } from "../controllers/auth.controller.js";
+import { isAuthenticated } from "../middlewares/auth.js";
+
 const router = express.Router();
 
 router.post("/register", register);
