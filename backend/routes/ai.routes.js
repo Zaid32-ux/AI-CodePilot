@@ -4,14 +4,15 @@ import {
   getPastPrompts,
   updateReview,
   deleteReview,
-} from "./controllers/ai.controller.js";
+} from "../controllers/ai.controller.js";
 
-import { authMiddleware } from "../controllers/auth.controller.js";
+import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
-router.post("/get-review", authMiddleware, getReview);
-router.get("/past-prompts", authMiddleware, getPastPrompts);
-router.put("/past-prompts/:id", authMiddleware, updateReview);
-router.delete("/past-prompts/:id", authMiddleware, deleteReview);
+
+router.post("/get-review", isAuthenticated, getReview);
+router.get("/past-prompts", isAuthenticated, getPastPrompts);
+router.put("/past-prompts/:id", isAuthenticated, updateReview);
+router.delete("/past-prompts/:id", isAuthenticated, deleteReview);
 
 export default router;
