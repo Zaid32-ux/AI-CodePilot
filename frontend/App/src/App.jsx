@@ -1,118 +1,39 @@
-import { useState, useEffect } from "react";
-import "prismjs/themes/prism-tomorrow.css";
-import Editor from "react-simple-code-editor";
-import prism from "prismjs";
-import Markdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
-import axios from "axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useContext, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Context } from "./main";
+import Login from "./components/Auth/Login.jsx"
+import Register from "./components/Auth/Register.jsx";
+import Home from "./components/Home/Home.jsx";
+import { Toaster } from "react-hot-toast";
 
 function App() {
-  const [code, setCode] = useState(`function sum() {\n  return 1 + 1;\n}`);
-  const [review, setReview] = useState("");
-  const [pastReviews, setPastReviews] = useState([]);
-  const [selectedReview, setSelectedReview] = useState(null);
-  const token = localStorage.getItem("token");
+  const { isAuthorized, setIsAuthorized } = useContext(Context);
 
   useEffect(() => {
-    if (token) fetchPastReviews();
-    console.log("token: ", token);
-  }, [token]);
-
-  
+    const token = localStorage.getItem("token");
+    setIsAuthorized(!!token);
+  }, []);
 
   return (
-    <>
-      <nav className="w-full max-w-screen-xl mx-auto bg-gray-800 p-4 shadow-lg border-b-2 border-white">
-        <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-semibold text-blue-400 cursor-pointer hover:text-blue-500 transition duration-300">
-            AI Code Reviewer
-          </h1>
-          <div className="flex items-center space-x-6">
-            <button className="bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none transition duration-200">
-              Dashboard
-            </button>
-            <button className="bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none transition duration-200">
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
+    <BrowserRouter>
+    <Routes>
+  <Route
+    path="/"
+    element={
+      localStorage.getItem("token") ? (
+        <Home />
+      ) : (
+        <Navigate to="/login" />
+      )
+    }
+  />
 
-      <div className="h-screen flex bg-gray-900 text-white">
-        {/* Sidebar */}
-        <aside className="w-full sm:w-64 bg-gray-800 p-4 flex flex-col">
-          <h2 className="text-lg font-semibold mb-4">Previous Reviews</h2>
-          <ul className="space-y-2 flex-1 overflow-auto">
-            {pastReviews.length > 0 ? (
-              pastReviews.map((item) => (
-                <li
-                  key={item.id}
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering select
-                    handleReviewClick(item);
-                  }}
-                  className="p-2 bg-gray-700 rounded cursor-pointer hover:bg-gray-500 flex justify-betweenn items-center"
-                >
-                  <span>{item.code.substring(0, 30)}...</span>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering select
-                        handleEditReview(item);
-                      }}
-                      className="text-yellow-400 hover:text-yellow-500 cursor-pointer"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering select
-                        deleteReview(item.id);
-                      }}
-                      className="text-red-400 hover:text-red-500 cursor-pointer"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </li>
-              ))
-            ) : (
-              <p className="text-gray-400">No reviews yet</p>
-            )}
-          </ul>
-          {/* New Review Button */}
-          <button
-            onClick={handleCodeReview}
-            className="mt-4 bg-blue-600 py-2 rounded hover:bg-blue-700"
-          >
-            New Review
-          </button>
-        </aside>
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
+</Routes>
 
-       
-          {/* Buttons */}
-          <div className="p-4 bg-gray-900 border-t border-gray-700 flex items-center">
-            {selectedReview ? (
-              <button
-                onClick={() => updateReview(selectedReview.id)}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600"
-              >
-                Update Review
-              </button>
-            ) : (
-              <button
-                onClick={reviewCode}
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-              >
-                Submit for Review
-              </button>
-            )}
-          </div>
-        </main>
-      </div>
-    </>
+      <Toaster />
+    </BrowserRouter>
   );
 }
 
