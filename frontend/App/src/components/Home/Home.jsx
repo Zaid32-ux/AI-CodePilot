@@ -104,11 +104,73 @@ function Home() {
     }
   }
 
+  async function updateReview(id) {
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/ai/past-prompts/${id}`,
+        { code },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
+      setReview(response.data.review);
+      fetchPastReviews();
+      setSelectedReview(null);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
- 
+  async function deleteReview(id) {
+    try {
+      await axios.delete(
+        `http://localhost:4000/ai/past-prompts/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
+      fetchPastReviews();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
+  function handleEditReview(item) {
+    setSelectedReview(item);
+    setCode(item.code);
+    setReview("");
+  }
+
+  function handleCodeReview() {
+    setSelectedReview(null);
+    setCode("");
+    setReview("");
+  }
+
+  function handleReviewClick(item) {
+    setSelectedReview(item);
+    setCode(item.code);
+    setReview(item.review);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
+
+  return (
+    <>
+    
+      {/* Navbar */}
+
+</>
+);
 }
 
 export default Home;
